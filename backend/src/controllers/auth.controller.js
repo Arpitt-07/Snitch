@@ -19,19 +19,17 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 export const register = async (req, res) => {
     try {
-        const { username, email, password, phone, isSeller } = req.body;
+        const { username, email, password } = req.body;
 
         const existedUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existedUser) {
-            return res.status(400).json({ success: false, message: "User with email or username already exists" });
+            return res.status(409).json({ success: false, message: "User with email or username already exists" });
         }
 
         const user = await User.create({
             username,
             email,
-            password,
-            phone,
-            role: isSeller ? "seller" : "buyer"
+            password
         });
 
         const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
@@ -156,5 +154,50 @@ export const refreshAccessToken = async (req, res) => {
             });
     } catch (error) {
         return res.status(401).json({ success: false, message: "Invalid refresh token", error: error.message });
+    }
+};
+
+export const getCurrentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user?._id).select("-password -refreshToken");
+        return res.status(200).json({ success: true, user });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Failed to get current user", error: error.message });
+    }
+};
+
+export const googleAuthCallback = async (req, res) => {
+    try {
+        const profile = req.user;
+        const email = profile.emails[0].value;
+        const displayName = profile.displayName;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            user = await User.create({
+                username: displayName,
+                googleId: profile.id,
+                email: email,
+                role: "user"
+            });
+        }
+
+        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict"
+        };
+
+        res.cookie("accessToken", accessToken, options);
+        res.cookie("refreshToken", refreshToken, options);
+
+        // Redirect to frontend dashboard or home
+        return res.redirect("http://localhost:5173/");
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        return res.redirect("http://localhost:5173/login?error=auth_failed");
     }
 };

@@ -15,16 +15,17 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: function () {
+            return !this.googleId;
+        },
     },
-    phone: {
+    role: {
         type: String,
-        required: true
+        enum: ["user", "admin"],
+        default: "user"
     },
-    role:{
+    googleId: {
         type: String,
-        enum:["buyer","seller"],
-        default:"buyer"
     },
     refreshToken: {
         type: String
