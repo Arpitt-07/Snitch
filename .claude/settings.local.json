@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "Bash(git clone *)",
+      "Bash(cp /tmp/ponytail/skills/ponytail/SKILL.md .claude/skills/ponytail/ponytail/SKILL.md)",
+      "Bash(cp /tmp/ponytail/skills/ponytail-review/SKILL.md .claude/skills/ponytail/ponytail-review/SKILL.md)",
+      "Bash(cp /tmp/ponytail/skills/ponytail-audit/SKILL.md .claude/skills/ponytail/ponytail-audit/SKILL.md)",
+      "Bash(cp /tmp/ponytail/skills/ponytail-debt/SKILL.md .claude/skills/ponytail/ponytail-debt/SKILL.md)",
+      "Bash(cp /tmp/ponytail/skills/ponytail-gain/SKILL.md .claude/skills/ponytail/ponytail-gain/SKILL.md)",
+      "Bash(grep *)",
+      "Bash(npm list *)",
+      "Bash(\" \"C:\\\\snitch\\\\src\\\\components\\\\layout\\\\Navbar.jsx\")",
+      "Bash(dir *)"
+    ]
+  }
+}

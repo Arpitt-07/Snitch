@@ -1,0 +1,233 @@
+// components/TransitionProvider.jsx
+"use client";
+
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { useCursor } from '@/contexts/CursorContext';
+import { SplitText } from 'gsap/SplitText';
+
+gsap.registerPlugin(useGSAP, SplitText);
+
+const SAFETY_TIMEOUT_MS = 4000;
+const NAV_TIMEOUT_MS = 5000;
+
+// Design Engineering Curves
+const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+const GSAP_EASE_OUT = "expo.out";
+const GSAP_S_CURVE = "power4.inOut"; // For the mechanical shutter feel
+
+const TransitionContext = createContext();
+
+const prefersReducedMotion = () =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+export function TransitionProvider({ children }) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const { setVariant } = useCursor();
+    const [stage, setStage] = useState("idle");
+    const [pendingHref, setPendingHref] = useState(null);
+
+    const containerRef = useRef(null);
+    const panelRef = useRef(null);
+    const headingRef = useRef(null);
+    const contentRef = useRef(null); // Ref for the actual page content
+    const animRef = useRef({ cover: () => Promise.resolve(), reveal: () => Promise.resolve() });
+
+    const pendingPath = pendingHref ? pendingHref.split(/[?#]/)[0] : null;
+
+    useGSAP(() => {
+        gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none' });
+        gsap.set(panelRef.current, { x: "100%", scale: 1.05 });
+        gsap.set(headingRef.current, { autoAlpha: 0, y: 40 });
+
+        animRef.current = {
+            cover: () =>
+                new Promise((resolve) => {
+                    const container = containerRef.current;
+                    const panel = panelRef.current;
+                    const content = contentRef.current;
+
+                    const safetyTimer = setTimeout(() => {
+                        gsap.killTweensOf([container, panel, headingRef.current, content]);
+                        gsap.set(container, { visibility: 'visible', pointerEvents: 'auto' });
+                        gsap.set(panel, { x: "100%", scale: 1.05 });
+                        gsap.set(headingRef.current, { autoAlpha: 0, y: 40 });
+                        gsap.set(content, { x: 0 });
+                        resolve();
+                    }, SAFETY_TIMEOUT_MS);
+
+                    try {
+                        gsap.set(container, { visibility: 'visible', pointerEvents: 'auto' });
+
+                        const tl = gsap.timeline({
+                            onComplete: () => {
+                                clearTimeout(safetyTimer);
+                                resolve();
+                            },
+                        });
+
+                        if (prefersReducedMotion()) {
+                            tl.fromTo(container, { opacity: 0 }, { opacity: 1, duration: 0.2 });
+                            return tl;
+                        }
+
+                        // 1. Kinetic Shift: Panel slides in + content shifts opposite
+                        tl.to(panel, {
+                            x: "0%",
+                            scale: 1,
+                            duration: 0.7,
+                            ease: GSAP_S_CURVE
+                        }, 0)
+                        .to(content, {
+                            x: -40,
+                            duration: 0.7,
+                            ease: GSAP_S_CURVE
+                        }, 0)
+                        // 2. Typography: Heading slides up and fades in with overshoot
+                        .to(headingRef.current, {
+                            autoAlpha: 1,
+                            y: 0,
+                            duration: 0.5,
+                            ease: "back.out(1.7)",
+                        }, "-=0.3");
+
+                    } catch {
+                        clearTimeout(safetyTimer);
+                        gsap.set(container, { visibility: 'visible', pointerEvents: 'auto' });
+                        gsap.set(panel, { x: "100%" });
+                        resolve();
+                    }
+                }),
+
+            reveal: () =>
+                new Promise((resolve) => {
+                    const container = containerRef.current;
+                    const panel = panelRef.current;
+                    const content = contentRef.current;
+
+                    const safetyTimer = setTimeout(() => {
+                        gsap.killTweensOf([container, panel, headingRef.current, content]);
+                        gsap.set(panel, { x: "100%", scale: 1.05 });
+                        gsap.set(container, { visibility: 'hidden', pointerEvents: 'none' });
+                        gsap.set(content, { x: 0 });
+                        resolve();
+                    }, SAFETY_TIMEOUT_MS);
+
+                    try {
+                        const tl = gsap.timeline({
+                            onComplete: () => {
+                                clearTimeout(safetyTimer);
+                                gsap.set(container, { visibility: 'hidden', pointerEvents: 'none' });
+                                resolve();
+                            },
+                        });
+
+                        if (prefersReducedMotion()) {
+                            tl.to(container, { opacity: 0, duration: 0.2 });
+                            return tl;
+                        }
+
+                        // 1. Typography fades out quickly
+                        tl.to(headingRef.current, {
+                            autoAlpha: 0,
+                            y: -20,
+                            duration: 0.3,
+                            ease: "power2.in"
+                        })
+                        // 2. Kinetic Shift: Panel slides back + content shifts back
+                        .to(panel, {
+                            x: "100%",
+                            scale: 1.05,
+                            duration: 0.6,
+                            ease: "power2.in"
+                        }, "-=0.1")
+                        .to(content, {
+                            x: 0,
+                            duration: 0.6,
+                            ease: "power2.in"
+                        }, "-=0.6");
+
+                    } catch {
+                        clearTimeout(safetyTimer);
+                        gsap.set(panel, { x: "100%" });
+                        gsap.set(container, { visibility: 'hidden', pointerHvents: 'none' });
+                        resolve();
+                    }
+                }),
+        };
+    }, []);
+
+    useEffect(() => {
+        if (stage === "covering" && pendingHref) {
+            animRef.current.cover().then(() => {
+                router.push(pendingHref);
+            });
+        }
+    }, [stage]);
+    useEffect(() => {
+        if (pendingPath && pathname === pendingPath) {
+            setPendingHref(null);
+            setStage("revealing");
+            animRef.current.reveal().then(() => setStage("idle"));
+        }
+    }, [pathname, pendingPath]);
+
+    useEffect(() => {
+        if (stage !== "covering") return;
+        const navTimeout = setTimeout(() => {
+            setPendingHref(null);
+            setStage("revealing");
+            animRef.current.reveal().then(() => setStage("idle"));
+        }, NAV_TIMEOUT_MS);
+        return () => clearTimeout(navTimeout);
+    }, [stage]);
+
+    useEffect(() => {
+        if (stage === "idle") {
+            document.body.style.overflow = "";
+        } else {
+            document.body.style.overflow = "hidden";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [stage]);
+
+    const navigateWithTransition = (href) => {
+        if (href === pathname || stage !== "idle") return;
+        setVariant("default");
+        setPendingHref(href);
+        setStage("covering");
+    };
+
+    return (
+        <TransitionContext.Provider value the={{ navigateWithTransition }}>
+            <div ref={contentRef} className="will-change-transform">
+                {children}
+            </div>
+
+            <div
+                ref={containerRef}
+                className="fixed inset-0 z-[9999] overflow-hidden pointer-events-none flex items-center justify-center"
+                aria-hidden="true"
+            } >
+                <div
+                    ref={panelRef}
+                    className="absolute inset-0 bg-ink will-change-transform"
+                />
+
+                <h1
+                    ref={headingRef}
+                    className="relative z-10 text-[10vw] font-sans font-black uppercase tracking-tighter text-bg-main"
+                >
+                    SNITCH
+                </h1>
+            </div>
+        </TransitionContext.Provider>
+    );
+}
+
+export const useTransitionRouter = () => useContext(TransitionContext);

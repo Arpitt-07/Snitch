@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Snitch E-Commerce Clone
+
+A full-stack e-commerce application implementing role-based access control, complex inventory state management, and optimized media delivery pipelines.
+
+## Tech Stack
+- **Framework**: Next.js (App Router)
+- **State Management**: Redux Toolkit
+- **Database**: MongoDB (Mongoose)
+- **Media Management**: ImageKit.io
+- **Styling**: Tailwind CSS
+
+## Environment Variables
+
+| Variable | Description | Required |
+| :--- | :--- | :--- |
+| `MONGODB_URI` | Connection string for MongoDB instance | Yes |
+| `JWT_SECRET` | Secret key for signing authentication tokens | Yes |
+| `IMAGEKIT_PUBLIC_KEY` | Public API key for ImageKit assets | Yes |
+| `IMAGEKIT_PRIVATE_KEY` | Private API key for ImageKit server-side operations | Yes |
+| `IMAGEKIT_URL` | Base URL for ImageKit media delivery | Yes |
+| `RAZORPAY_KEY_ID` | API key for Razorpay payment gateway | Yes |
+| `RAZORPAY_KEY_SECRET` | Secret key for Razorpay payment gateway | Yes |
+| `GOOGLE_CLIENT_ID` | Google OAuth2 Client ID | Yes |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth2 Client Secret | Yes |
 
 ## Getting Started
 
-First, run the development server:
-
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd snitch-ecommerce-clone
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Configuration
+Create a `.env.local` file in the root directory and populate it with the variables listed in the Environment Variables table.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Local Development
+```bash
+npm run dev
+```
+The application will be available at `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```text
+src/
+├── app/
+│   ├── api/                # Next.js Route Handlers (Auth, Products, Cart, Orders)
+│   ├── admin/              # Administrative dashboard and inventory management
+│   ├── (auth)/             # Authentication flows (Login, Register)
+│   ├── products/           # Product listing and detailed view pages
+│   └── layout.js           # Global layout and providers
+├── components/
+│   ├── ui/                 # Atomic design components
+│   └── layout/             # Page-level wrappers and navigation
+├── lib/                    # Axios instances, shared utilities, and helper functions
+├── models/                 # Mongoose schema definitions (User, Product, Order, Cart)
+└── store/                  # Redux Toolkit slices and central store configuration
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+MIT
