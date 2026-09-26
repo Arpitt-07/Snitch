@@ -43,8 +43,6 @@ export const GET = async (req) => {
         };
         const sort = sortMap[sortParam] || sortMap.newest;
 
-        console.log("MongoDB Filter Executing:", JSON.stringify(filter, null, 2));
-
         const [products, total] = await Promise.all([
             Product.find(filter)
                 .select("-owner")

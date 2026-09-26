@@ -78,14 +78,14 @@ useGSAP(() => {
       className="relative w-full h-screen min-h-[100dvh] overflow-hidden text-white"
     >
       <Image
-        src="https://images.pexels.com/photos/38264826/pexels-photo-38264826.jpeg"
+        src="/images/hero1.jpg"
         alt=""
         fill
         priority
         sizes="100vw"
         className="object-cover hidden md:block "
       />
-      <Image src="https://images.pexels.com/photos/38368968/pexels-photo-38368968.jpeg" alt="Logo" fill className="object-cover object-bottom  md:hidden " />
+      <Image src="/images/hero2.jpg" alt="Logo" fill className="object-cover object-bottom  md:hidden " />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
 
 
