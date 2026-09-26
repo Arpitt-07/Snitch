@@ -97,7 +97,7 @@ export default function CartPage() {
                         <span className="hidden sm:inline">|</span>
                         <span className="hidden sm:inline">Bag_ID: {Math.random().toString(36).substring(7).toUpperCase()}</span>
                         <span className="hidden sm:inline">|</span>
-                        <span className="hidden sm:inline">{new Date().toLocaleDateString('en-GB').replace(/\
+                         <span className="hidden sm:inline">{new Date().toLocaleDateString('en-GB').replace(/\//g, '.')}</span>
                     </div>
                     <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85]">
                         Your Bag

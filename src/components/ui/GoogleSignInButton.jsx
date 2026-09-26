@@ -11,7 +11,7 @@ export default function GoogleSignInButton() {
 
     useEffect(() => {
         const script = document.createElement("script");
-        script.src = "https:
+        script.src = "https://accounts.google.com/gsi/client"
         script.async = true;
         script.onload = () => {
             window.google.accounts.id.initialize({
