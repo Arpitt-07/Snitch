@@ -15,7 +15,6 @@ export default function CollectionSection() {
     const gridRef = useRef(null);
     const reduce = useReducedMotion();
 
-    // Fetch products locally within the component
     useEffect(() => {
         api.get("/products")
             .then((res) => {
@@ -25,7 +24,7 @@ export default function CollectionSection() {
             .catch(() => setLoading(false));
     }, []);
 
-    useGSAP(() => {
+   useGSAP(() => {
         if (loading || reduce || !products?.length) return;
 
         ScrollTrigger.batch(".product-card-wrapper", {
@@ -37,10 +36,19 @@ export default function CollectionSection() {
                     duration: 0.8,
                     stagger: 0.1,
                     ease: "expo.out",
+                    overwrite: true,
                 });
             },
             onLeaveBack: (batch) => {
-                gsap.set(batch, { opacity: 0, y: 48, scale: 0.95 });
+                gsap.to(batch, { 
+                    opacity: 0, 
+                    y: 48, 
+                    scale: 0.95,
+                    duration: 0.5,
+                    stagger: 0.05, 
+                    ease: "power2.inOut", 
+                    overwrite: true,
+                });
             },
             start: "top 90%",
         });
@@ -71,14 +79,12 @@ export default function CollectionSection() {
             </div>
 
             {loading ? (
-                // Loading Skeleton (scoped only to the grid area so the headers stay visible)
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="aspect-[4/5] bg-gray-100 animate-pulse rounded-[2px] border border-ink/5" />
                     ))}
                 </div>
             ) : (
-                // Actual Data Grid
                 <div
                     ref={gridRef}
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:grid-flow-row-dense gap-x-6 gap-y-6"

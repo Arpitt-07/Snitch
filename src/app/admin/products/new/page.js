@@ -18,10 +18,13 @@ export default function NewProductPage() {
         title: "", description: "", basePrice: "", discountPrice: "",
         department: "Menswear", category: "", tags: "", isPublished: false,
     });
+    
     const [variants, setVariants] = useState([{
         color: "",
         colorCode: "",
         images: [],
+        hasSizes: true, 
+        stock: "", 
         sizes: [{ size: "", stock: 0, priceOverride: "" }]
     }]);
 
@@ -41,8 +44,11 @@ export default function NewProductPage() {
         color: "",
         colorCode: "",
         images: [],
+        hasSizes: true,
+        stock: "",
         sizes: [{ size: "", stock: 0, priceOverride: "" }]
     }]);
+
     const addSize = (vi) => setVariants((prev) => prev.map((v, idx) =>
         idx === vi ? { ...v, sizes: [...v.sizes, { size: "", stock: 0, priceOverride: "" }] } : v
     ));
@@ -66,11 +72,14 @@ export default function NewProductPage() {
                     color: v.color,
                     colorCode: v.colorCode || undefined,
                     images: v.images,
-                    sizes: v.sizes.map((s) => ({
-                        size: s.size,
-                        stock: Number(s.stock),
-                        priceOverride: s.priceOverride ? Number(s.priceOverride) : null,
-                    })),
+                    stock: v.hasSizes ? undefined : Number(v.stock),
+                    sizes: v.hasSizes
+                        ? v.sizes.map((s) => ({
+                            size: s.size,
+                            stock: Number(s.stock),
+                            priceOverride: s.priceOverride ? Number(s.priceOverride) : null,
+                        }))
+                        : [], 
                 })),
             };
             await api.post("/admin/products", payload);
@@ -97,7 +106,6 @@ export default function NewProductPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-12">
-                    {/* Basic Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-ink/10 pt-8">
                         <div className="space-y-8">
                             <div className="space-y-2">
@@ -166,7 +174,6 @@ export default function NewProductPage() {
                         </div>
                     </div>
 
-                    {/* Tags and Publishing */}
                     <div className="flex flex-col md:flex-row gap-8 border-t border-ink/10 pt-8">
                         <div className="flex-1 space-y-2">
                             <label className={labelClass}>Search Tags (Comma Separated)</label>
@@ -190,7 +197,7 @@ export default function NewProductPage() {
                         </div>
                     </div>
 
-                    {/* Variants */}
+  
                     <div className="space-y-8 border-t border-ink/10 pt-12">
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-3xl font-black uppercase tracking-tighter">Variants</h2>
@@ -244,52 +251,81 @@ export default function NewProductPage() {
                                         </div>
 
                                         <div className="space-y-6">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <label className={labelClass}>Size Grid</label>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => addSize(vi)}
-                                                    className="text-[11px] font-mono uppercase tracking-[0.18em] border border-ink/20 px-2 py-1 rounded-[2px] hover:border-ink/60 transition-colors"
-                                                >
-                                                    + Add Size
-                                                </button>
+                                            <div className="flex items-center gap-2 mb-4 border-b border-ink/5 pb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`hasSizes-${vi}`}
+                                                    className="w-4 h-4 accent-ink cursor-pointer"
+                                                    checked={v.hasSizes}
+                                                    onChange={(e) => updateVariant(vi, "hasSizes", e.target.checked)}
+                                                />
+                                                <label htmlFor={`hasSizes-${vi}`} className="text-xs font-mono uppercase tracking-widest text-ink/60 cursor-pointer">
+                                                    Product has multiple sizes?
+                                                </label>
                                             </div>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {v.sizes.map((s, si) => (
-                                                    <div key={`variant-${vi}-size-${si}`} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                                                        <input
-                                                            className={`${inputClass} flex-1 min-w-0`}
-                                                            value={s.size}
-                                                            onChange={(e) => updateSize(vi, si, "size", e.target.value)}
-                                                            placeholder="S/M/L"
-                                                        />
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            className={`${inputClass} flex-1 min-w-0`}
-                                                            value={s.stock}
-                                                            onChange={(e) => updateSize(vi, si, "stock", e.target.value)}
-                                                            placeholder="Stock"
-                                                        />
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            className={`${inputClass} flex-1 min-w-0`}
-                                                            value={s.priceOverride ?? ""}
-                                                            onChange={(e) => updateSize(vi, si, "priceOverride", e.target.value)}
-                                                            placeholder="Price Override"
-                                                        />
+                                            {v.hasSizes ? (
+                                                <>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <label className={labelClass}>Size Grid</label>
                                                         <button
                                                             type="button"
-                                                            onClick={() => removeSize(vi, si)}
-                                                            className="w-[46px] h-[46px] flex-shrink-0 border border-ink/15 bg-white/50 rounded-[3px] text-ink/40 hover:text-ink hover:border-ink/60 transition-colors flex items-center justify-center text-xl cursor-pointer"
-                                                            title="Remove Size"
+                                                            onClick={() => addSize(vi)}
+                                                            className="text-[11px] font-mono uppercase tracking-[0.18em] border border-ink/20 px-2 py-1 rounded-[2px] hover:border-ink/60 transition-colors"
                                                         >
-                                                            ×
+                                                            + Add Size
                                                         </button>
                                                     </div>
-                                                ))}
-                                            </div>
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        {v.sizes.map((s, si) => (
+                                                            <div key={`variant-${vi}-size-${si}`} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                                                                <input
+                                                                    className={`${inputClass} flex-1 min-w-0`}
+                                                                    value={s.size}
+                                                                    onChange={(e) => updateSize(vi, si, "size", e.target.value)}
+                                                                    placeholder="S/M/L"
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    className={`${inputClass} flex-1 min-w-0`}
+                                                                    value={s.stock}
+                                                                    onChange={(e) => updateSize(vi, si, "stock", e.target.value)}
+                                                                    placeholder="Stock"
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    className={`${inputClass} flex-1 min-w-0`}
+                                                                    value={s.priceOverride ?? ""}
+                                                                    onChange={(e) => updateSize(vi, si, "priceOverride", e.target.value)}
+                                                                    placeholder="Price Override"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeSize(vi, si)}
+                                                                    className="w-[46px] h-[46px] flex-shrink-0 border border-ink/15 bg-white/50 rounded-[3px] text-ink/40 hover:text-ink hover:border-ink/60 transition-colors flex items-center justify-center text-xl cursor-pointer"
+                                                                    title="Remove Size"
+                                                                >
+                                                                    ×
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="space-y-2 bg-ink/5 p-4 rounded-[3px]">
+                                                    <label className={labelClass}>Total Variant Stock</label>
+                                                    <p className="text-xs text-ink/60 mb-3">For items without sizes (watches, bags, etc).</p>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        className={inputClass}
+                                                        value={v.stock}
+                                                        onChange={(e) => updateVariant(vi, "stock", e.target.value)}
+                                                        placeholder="Enter total stock quantity"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

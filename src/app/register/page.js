@@ -1,4 +1,3 @@
-// src/app/register/page.js
 "use client";
 import { useState, useRef,useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +32,6 @@ export default function RegisterPage() {
             const msg = err.response?.data?.message || "Registration failed";
             setError(msg);
 
-            // Shake animation for error
             if (errorRef.current) {
                 gsap.fromTo(errorRef.current,
                     { x: -5 },

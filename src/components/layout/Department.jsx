@@ -1,4 +1,3 @@
-// src/components/layout/ShopByDepartment.jsx
 "use client";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
@@ -7,13 +6,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TransitionLink from "@/components/TransitionLink";
 import { useCursor } from "@/contexts/CursorContext";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import Image from "next/image";
+
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const DEPARTMENTS = [
-    { name: "Menswear", slug: "Menswear", image: "/images/2.webp" },
-    { name: "Womenswear", slug: "Womenswear", image: "/images/3.webp" },
-    { name: "Accessories", slug: "Accessories", image: "/images/5.webp" },
+    { name: "Menswear", slug: "Menswear", image: "/images/Menswear.jpg" },
+    { name: "Womenswear", slug: "Womenswear", image: "/images/Womenswear.jpg" },
+    { name: "Accessories", slug: "Accessories", image: "/images/Accessories.jpg" },
 ];
 
 function DepartmentTile({ department, index }) {
@@ -47,11 +48,13 @@ function DepartmentTile({ department, index }) {
                 ref={containerRef}
                 className="absolute inset-0 w-full h-full overflow-hidden"
             >
-                <img
+                <Image
                     ref={imgRef}
                     src={department.image}
                     alt={department.name}
                     className="absolute inset-0 w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                 />
             </div>
             <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors duration-500" />
@@ -86,33 +89,29 @@ export default function ShopByDepartment() {
         if (reduce) {
             gsap.set(".department-tile", {
                 opacity: 1,
-                clipPath: "inset(0 0 0% 0)"
+                scale: 1,
+                filter: "blur(0px)"
             });
             return;
         }
 
-        // Mask-wipe reveal for tiles
         gsap.set(".department-tile", {
             opacity: 0,
-            clipPath: "inset(0 0 100% 0)"
+            scale: 0.9,
+            filter: "blur(10px)"
         });
 
         gsap.to(".department-tile", {
             opacity: 1,
-            clipPath: "inset(0 0 0% 0)",
-            duration: 1.2,
-            stagger: 0.2,
-            ease: "expo.out",
+            scale: 1,
+            filter: "blur(0px)",
+            duration: 1.4,
+            stagger: 0.15,
+            ease: "cubic-bezier(0.23, 1, 0.32, 1)",
             scrollTrigger: {
                 trigger: sectionRef.current,
-                start: "top 80%",
-                toggleActions: "restart none none reverse",
-                onLeaveBack: (self) => {
-                    gsap.set(".department-tile", {
-                        opacity: 0,
-                        clipPath: "inset(0 0 100% 0)"
-                    });
-                },
+                start: "top 85%",
+                toggleActions: "play none none reverse",
             },
         });
     }, { scope: sectionRef });

@@ -1,4 +1,3 @@
-// src/app/api/orders/[id]/route.js
 import { asyncHandler } from "@/lib/asyncHandler.js";
 import connectDB from "@/lib/db.js";
 import { ApiResponse } from "@/lib/ApiResponse.js";

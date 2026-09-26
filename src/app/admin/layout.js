@@ -1,4 +1,3 @@
-// src/app/admin/layout.js
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -12,9 +11,9 @@ export default function AdminLayout({ children }) {
         if (loading) return;
 
         if (!user) {
-            router.push("/login"); // not authenticated at all — login makes sense here
+            router.push("/login");
         } else if (user.role !== "admin") {
-            router.push("/"); // authenticated, just not authorized — send them home, not to login
+            router.push("/");
         }
     }, [user, loading, router]);
 

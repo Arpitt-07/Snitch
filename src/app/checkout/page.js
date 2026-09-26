@@ -9,7 +9,7 @@ function loadRazorpayScript() {
     return new Promise((resolve) => {
         if (window.Razorpay) return resolve(true);
         const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.src = "https:
         script.onload = () => resolve(true);
         script.onerror = () => resolve(false);
         document.body.appendChild(script);
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
                             razorpay_signature: response.razorpay_signature,
                             address,
                         });
-                        dispatch(fetchCart()); // cart is now empty server-side — sync Redux
+                        dispatch(fetchCart());
                         router.push(`/orders/${verifyRes.data.data._id}`);
                     } catch (err) {
                         setError(err.response?.data?.message || "Payment verification failed");
@@ -77,7 +77,7 @@ export default function CheckoutPage() {
                     }
                 },
                 modal: {
-                    ondismiss: () => setProcessing(false), // user closed the modal without paying
+                    ondismiss: () => setProcessing(false),
                 },
                 prefill: {
                     name: address.fullName,

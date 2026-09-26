@@ -25,7 +25,8 @@
     "react-dom": "19.2.8",
     "react-redux": "^9.3.0",
     "sharp": "^0.35.4",
-    "slugify": "^1.6.9"
+    "slugify": "^1.6.9",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

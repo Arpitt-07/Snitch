@@ -1,4 +1,3 @@
-// src/lib/axios.js
 "use client";
 
 const BASE_URL = "/api";
@@ -12,7 +11,22 @@ const processQueue = (error) => {
 };
 
 async function request(endpoint, options = {}) {
-    const url = `${BASE_URL}${endpoint}`;
+    let url = `${BASE_URL}${endpoint}`;
+
+    if (options.params) {
+        const searchParams = new URLSearchParams();
+        Object.entries(options.params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+                searchParams.append(key, value);
+            }
+        });
+        const queryString = searchParams.toString();
+        if (queryString) {
+            url += `?${queryString}`;
+        }
+        delete options.params;
+    }
+
     const config = {
         ...options,
         headers: {

@@ -7,10 +7,10 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: {
         type: String,
-        required: function () { return this.authProvider === "local"; }, // only required for password-based accounts
+        required: function () { return this.authProvider === "local"; },
     },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
-    googleId: { type: String, unique: true, sparse: true }, // sparse = allows many nulls without violating uniqueness
+    googleId: { type: String, unique: true, sparse: true },
     role: { type: String, enum: ["customer", "admin"], default: "customer" },
     refreshToken: { type: String },
 }, { timestamps: true });

@@ -1,4 +1,3 @@
-// src/app/products/[slug]/page.js
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
@@ -51,7 +50,6 @@ export default function ProductDetailPage() {
     useGSAP(() => {
         if (!product || reduce) return;
 
-        // Title reveal: SplitText lines reveal
         const split = SplitText.create(titleRef.current, {
             type: "lines",
             linesClass: "overflow-hidden",
@@ -90,7 +88,6 @@ export default function ProductDetailPage() {
                 quantity: 1,
             })).unwrap();
 
-            // Success Micro-animation
             if (!reduce) {
                 gsap.to(ctaRef.current, {
                     scale: 0.95,
@@ -116,9 +113,6 @@ export default function ProductDetailPage() {
     const handleSizeSelect = (size) => {
         setSelectedSize(size);
         if (!reduce) {
-            // Simple scale pulse for the button
-            // Since we don't have a ref for each size button, we can use a selector
-            // or just rely on the CSS transition for the basic part and GSAP for the "pop"
         }
     };
 

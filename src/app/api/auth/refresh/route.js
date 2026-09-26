@@ -26,8 +26,6 @@ export const POST = asyncHandler(async (req) => {
         throw new ApiError(401, "Invalid refresh token");
     }
 
-    // this is the critical check — confirms this exact token wasn't already
-    // logged-out/rotated/revoked, since a valid JWT signature alone isn't enough
     if (incomingRefreshToken !== user.refreshToken) {
         throw new ApiError(401, "Refresh token is expired or has been used");
     }
@@ -35,7 +33,7 @@ export const POST = asyncHandler(async (req) => {
     const newAccessToken = user.generateAccessToken();
     const newRefreshToken = user.generateRefreshToken();
 
-    user.refreshToken = newRefreshToken; // rotation: old one is now dead
+    user.refreshToken = newRefreshToken;
     await user.save({ validateBeforeSave: false });
 
     const response = NextResponse.json(

@@ -1,4 +1,3 @@
-// src/components/ui/ProductGallery.jsx
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
@@ -9,8 +8,6 @@ export default function ProductGallery({ images = [], title }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const mainImageRef = useRef(null);
     const reduce = useReducedMotion();
-
-    // whenever the image set changes (e.g. switching color variant), go back to the first image
     useEffect(() => {
         setActiveIndex(0);
     }, [images]);
@@ -25,8 +22,6 @@ export default function ProductGallery({ images = [], title }) {
     }, { dependencies: [activeIndex, reduce] });
 
     if (images.length === 0) return null;
-
-    // defensive fallback — never let an out-of-range index crash the render
     const activeImage = images[activeIndex] || images[0];
     if (!activeImage) return null;
 

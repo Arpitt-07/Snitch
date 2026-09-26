@@ -72,14 +72,13 @@ export default function EditProductPage() {
         });
     };
 
-    // Deep clone for removing sizes safely
     const removeSize = (vi, si) => {
         setVariants((prev) => {
             const next = [...prev];
             const variant = { ...next[vi] };
             const sizes = [...(variant.sizes || [])];
             
-            sizes.splice(si, 1); // Remove the size at index
+            sizes.splice(si, 1);
             
             variant.sizes = sizes;
             next[vi] = variant;

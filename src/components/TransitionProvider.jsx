@@ -1,4 +1,3 @@
-// components/TransitionProvider.jsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useRef } from 'react';
@@ -67,6 +66,7 @@ export function TransitionProvider({ children }) {
                     onComplete: () => {
                         gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none' });
                         gsap.set(panelRef.current, { clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)" });
+                        gsap.set(contentRef.current, { clearProps: "transform" });
                         resolve();
                     }
                 });
@@ -92,7 +92,7 @@ export function TransitionProvider({ children }) {
         gsap.killTweensOf([containerRef.current, panelRef.current, headingRef.current, contentRef.current]);
         gsap.set(containerRef.current, { visibility: 'hidden', pointerEvents: 'none', opacity: 1 });
         gsap.set(panelRef.current, { clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)" });
-        gsap.set(contentRef.current, { x: 0 });
+        gsap.set(contentRef.current, { x: 0, clearProps: "transform" });
         document.body.style.overflow = "";
         isAnimating.current = false;
     };
@@ -109,7 +109,6 @@ export function TransitionProvider({ children }) {
         }
     };
 
-    // Only one useEffect needed: Listen for Next.js route completion
     useEffect(() => {
         if (pendingPathRef.current && pathname === pendingPathRef.current) {
             pendingPathRef.current = null;
@@ -128,11 +127,9 @@ export function TransitionProvider({ children }) {
         pendingPathRef.current = targetPath;
 
         try {
-            // Race the animation against the safety timeout
             await Promise.race([animRef.current.cover(), timeoutPromise(SAFETY_TIMEOUT_MS)]);
             router.push(href);
 
-            // Backup timeout in case Next.js hangs on routing
             navTimeoutRef.current = setTimeout(() => {
                 if (pendingPathRef.current === targetPath) {
                     pendingPathRef.current = null;
@@ -147,10 +144,8 @@ export function TransitionProvider({ children }) {
     };
 
     return (
-        <TransitionContext.Provider value={{ navigateWithTransition }}>
-            <div ref={contentRef}>
-                {children}
-            </div>
+        <TransitionContext.Provider value={{ navigateWithTransition, contentRef }}>
+            {children}
             <div
                 ref={containerRef}
                 className="fixed inset-0 z-[9999] overflow-hidden pointer-events-none flex items-center justify-center"
@@ -166,6 +161,11 @@ export function TransitionProvider({ children }) {
             </div>
         </TransitionContext.Provider>
     );
+}
+
+export function TransitionContent({ children }) {
+    const { contentRef } = useTransitionRouter();
+    return <div ref={contentRef}>{children}</div>;
 }
 
 export const useTransitionRouter = () => useContext(TransitionContext);

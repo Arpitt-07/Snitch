@@ -1,4 +1,3 @@
-// src/app/api/products/route.js
 import connectDB from "@/lib/db.js";
 import { Product } from "@/models/product.model.js";
 import { NextResponse } from "next/server";
@@ -17,8 +16,6 @@ export const GET = async (req) => {
 
         const department = searchParams.get("department");
         if (department) {
-            // Strict regex anchor: ^ means start, $ means end. 
-            // It will ONLY match the exact word "Menswear", ignoring case.
             filter.department = { $regex: `^${department}$`, $options: "i" };
         }
 
@@ -46,7 +43,6 @@ export const GET = async (req) => {
         };
         const sort = sortMap[sortParam] || sortMap.newest;
 
-        // DEBUG: Watch your server terminal to see exactly what MongoDB is querying
         console.log("MongoDB Filter Executing:", JSON.stringify(filter, null, 2));
 
         const [products, total] = await Promise.all([

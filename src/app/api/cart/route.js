@@ -1,4 +1,3 @@
-// src/app/api/cart/route.js
 import connectDB from "@/lib/db.js";
 import { Cart } from "@/models/cart.model.js";
 import { Product } from "@/models/product.model.js";

@@ -1,181 +1,125 @@
-// src/components/layout/Hero.jsx
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
+import Image from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAppReady } from "@/contexts/AppReadyContext";
 import { useCursor } from "@/contexts/CursorContext";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import TransitionLink from "@/components/TransitionLink";
+import Button from "@/components/ui/Button";
 
-gsap.registerPlugin(SplitText, ScrollTrigger);
+gsap.registerPlugin(SplitText);
 
 export default function Hero() {
   const containerRef = useRef(null);
-  const imageRef = useRef(null);
   const headlineRef = useRef(null);
   const eyebrowRef = useRef(null);
   const copyRef = useRef(null);
   const ctaRef = useRef(null);
+
   const { ready } = useAppReady();
   const { setVariant } = useCursor();
   const reduce = useReducedMotion();
-  useGSAP(
-    () => {
-      if (!ready) return;
 
-      const lineSplit = new SplitText(headlineRef.current, {
-        type: "lines",
-        linesClass: "overflow-hidden",
-      });
+useGSAP(() => {
+    const headsplit = SplitText.create(headlineRef.current, {
+      type: "chars",
+      mask: "chars",
+    });
+    const eyebrowSplit = SplitText.create(
+      eyebrowRef.current.querySelectorAll(".eyebrow"),
+      { type: "lines", mask: "lines" }
+    );
 
-      const charSplit = new SplitText(headlineRef.current, {
-        type: "chars",
-      });
+    const chars = headsplit.chars;
+    const lines = eyebrowSplit.lines;
 
-      const lines = lineSplit.lines;
-      const chars = charSplit.chars;
+    gsap.set(chars, { yPercent: 110,  });
+    gsap.set(lines, { yPercent: 110, opacity: 0 });
+    gsap.set(ctaRef.current, { y: 20, opacity: 0 });
 
-      const weights = [900, 400, 200, 200, 400, 800];
+    const tl = gsap.timeline({ delay: 0.5 });
 
-      const tl = gsap.timeline({
-        delay: 0.2,
-        defaults: { ease: "expo.out" }
-      });
-
-      if (!reduce) {
-        tl.fromTo(
-          imageRef.current,
-          { scale: 1.15, opacity: 0.6 },
-          { scale: 1, opacity: 1, duration: 2.2, ease: "power2.out" },
-          0
-        );
-
-        lines.forEach((line, i) => {
-          const fromY = i % 2 === 0 ? -110 : 110;
-          tl.fromTo(
-            line,
-            { yPercent: fromY, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 1.2, stagger: 0.1 },
-            0
-          );
-        });
-
-        chars.forEach((char, i) => {
-          const targetWeight = weights[i] || 900;
-          tl.fromTo(
-            char,
-            { fontVariationSettings: "'wght' 100" },
-            { fontVariationSettings: `'wght' ${targetWeight}`, duration: 1.5 },
-            0
-          );
-        });
-
-        tl.fromTo(
-          eyebrowRef.current,
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.7 },
-          0.5
-        );
-
-        tl.fromTo(
-          copyRef.current,
-          { opacity: 0, x: -20 },
-          { opacity: 1, x: 0, duration: 0.8 },
-          0.65
-        );
-
-        tl.fromTo(
-          ctaRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          0.85
-        );
-        gsap.to(imageRef.current, {
-          yPercent: 15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      } else {
-        tl.fromTo([imageRef.current, headlineRef.current, eyebrowRef.current, copyRef.current, ctaRef.current],
-          { opacity: 0 },
-          { opacity: 1, stagger: 0.2, duration: 0.8 }
-        );
-      }
-
-      return () => {
-        ScrollTrigger.getAll().forEach((st) => {
-          if (st.trigger === containerRef.current) st.kill();
-        });
-      };
-    },
-    { dependencies: [ready, reduce] }
-  );
+    if (!reduce) {
+      tl.to(chars, {
+        yPercent: 0,
+    
+        stagger: { each: 0.07, from: "random" },
+        ease: "expo.out",
+        duration: 1.5,
+      }).to(
+        lines,
+        {
+          yPercent: 0,
+          opacity: 1,
+          stagger: { each: 0.07 },
+          ease: "expo.out",
+          duration: 1.2,
+        },
+        "-=1.2"
+      ).to(
+        ctaRef.current,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "expo.out",
+        },
+        "-=0.8"
+      );
+    }
+}, [ready]);
 
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[100dvh] w-full overflow-hidden bg-ink text-bg-main"
-      style={{ paddingTop: "var(--nav-height)" }}
+      className="relative w-full h-screen min-h-[100dvh] overflow-hidden text-white"
     >
-      <img
-        ref={imageRef}
+      <Image
         src="https://images.pexels.com/photos/38264826/pexels-photo-38264826.jpeg"
         alt=""
-        className="hidden md:block absolute inset-0 w-full h-[120%] object-cover"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover hidden md:block "
       />
+      <Image src="https://images.pexels.com/photos/38368968/pexels-photo-38368968.jpeg" alt="Logo" fill className="object-cover object-bottom  md:hidden " />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
 
-      <img
-        src="https://images.pexels.com/photos/33875527/pexels-photo-33875527.jpeg"
-        alt=""
-        className="block md:hidden absolute inset-0 w-full h-[120%] object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-      <div className="absolute inset-0 z-10 h-full w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pb-20 md:pb-24 flex flex-col justify-end">
+      <div className="relative z-10 min-h-[100dvh] w-full px-5 md:px-10 gap-[30rem] md:gap-0  flex flex-col md:justify-end justify-center transform translate-y-20 md:translate-y-0">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6  ">
+          <div ref={eyebrowRef} className="w-full translate-y-52 md:translate-y-0  ">
+            <p
+              className="eyebrow text-base md:text-base uppercase overflow-hidden font-medium tracking-wider"
+            >
+              Essentials, sharpened
+            </p>
+            <p className="eyebrow text-sm md:text-base uppercase overflow-hidden opacity-80 text-start">
+              Premium fabric, street instinct, zero compromise.
+            </p>
+          </div>
 
-        <p
-          ref={eyebrowRef}
-          className="font-mono text-[10px] uppercase tracking-[0.3em] opacity-40 mb-4"
-        >
-          Collection 2026 / High-Contrast
-        </p>
-
+          <div ref={ctaRef} >
+            <Button
+              href="/products"
+              variant="ghost"
+              onMouseEnter={() => setVariant("view")}
+              onMouseLeave={() => setVariant("default")}
+              className='border-bg-main/20 text-bg-main hover:border-bg-main/50 hover:bg-bg-main/5 whitespace-nowrap '
+            >
+              SHOP Collection
+            </Button>
+          </div>
+        </div>
         <h1
           ref={headlineRef}
-          className="text-[16vw] sm:text-[14vw] md:text-[12vw] lg:text-[11vw] font-black uppercase tracking-tighter leading-[0.85]"
-          style={{ fontVariationSettings: "'wght' 900" }}
+          className="text-[20vw] md:text-[22vw] text-bg-main font-sans font-medium uppercase tracking-widest text-center  leading-none w-full"
         >
           SNITCH
         </h1>
-
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mt-8 gap-6">
-          <p
-            ref={copyRef}
-            className="text-sm md:text-base max-w-sm leading-relaxed opacity-70 tracking-wide"
-          >
-            Premium x Streetwear. Precision-cut essentials designed
-            for the urban landscape.
-          </p>
-
-          <div ref={ctaRef}>
-            <TransitionLink
-              href="/products"
-              onMouseEnter={() => setVariant("view")}
-              onMouseLeave={() => setVariant("default")}
-              className="group relative inline-block border border-bg-main/20 text-bg-main text-[11px] font-bold uppercase tracking-[0.28em] px-10 py-4 transition-all duration-300 hover:bg-bg-main hover:text-ink active:scale-[0.97]"
-            >
-              <span className="relative z-10">Shop Collection</span>
-            </TransitionLink>
-          </div>
-        </div>
       </div>
     </section>
   );

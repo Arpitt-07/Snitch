@@ -1,4 +1,3 @@
-// src/app/api/products/[slug]/route.js
 import connectDB from "@/lib/db.js";
 import { Product } from "@/models/product.model.js";
 import { NextResponse } from "next/server";

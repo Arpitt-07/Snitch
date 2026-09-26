@@ -10,7 +10,7 @@ const imageKit = new ImageKit({
 });
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 10 * 1024 * 1024;
 
 export async function uploadImage(file) {
     if (!ALLOWED_TYPES.includes(file.type)) {

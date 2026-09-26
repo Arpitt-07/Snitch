@@ -18,7 +18,30 @@ function ProductsCatalogContent() {
     const search = searchParams.get("search") || "";
     const page = Number(searchParams.get("page")) || 1;
 
-    // 1. Optimized query string builder (Memoized)
+    const [searchTerm, setSearchTerm] = useState(search);
+
+    useEffect(() => {
+        setSearchTerm(search);
+    }, [search]);
+
+    useEffect(() => {
+        if (searchTerm === search) return;
+
+        const timer = setTimeout(() => {
+            const params = new URLSearchParams(searchParams.toString());
+            if (searchTerm) {
+                params.set("search", searchTerm);
+            } else {
+                params.delete("search");
+            }
+            params.delete("page");
+
+            router.push(`/products?${params.toString()}`);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, search, searchParams, router]);
+
     const createQueryString = useCallback((name, value) => {
         const params = new URLSearchParams(searchParams.toString());
         if (value) {
@@ -27,7 +50,6 @@ function ProductsCatalogContent() {
             params.delete(name);
         }
 
-        // Reset to page 1 if we are changing a filter (not paginating)
         if (name !== "page") {
             params.delete("page");
         }
@@ -35,7 +57,6 @@ function ProductsCatalogContent() {
         return params.toString();
     }, [searchParams]);
 
-    // 2. Added AbortController to prevent race conditions and cancel pending requests
     const fetchProducts = useCallback(async (abortSignal) => {
         setStatus("loading");
         setError("");
@@ -46,14 +67,13 @@ function ProductsCatalogContent() {
 
             const res = await api.get("/products", {
                 params,
-                signal: abortSignal // Pass signal to Axios
+                signal: abortSignal
             });
 
             setProducts(res.data.data.products);
             setPagination(res.data.data.pagination);
             setStatus("idle");
         } catch (err) {
-            // Ignore errors caused by the request being intentionally aborted
             if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
 
             setError(err.response?.data?.message || "Failed to load products");
@@ -65,15 +85,8 @@ function ProductsCatalogContent() {
         const controller = new AbortController();
         fetchProducts(controller.signal);
 
-        // Cleanup: abort previous request if filters change before it finishes
         return () => controller.abort();
     }, [fetchProducts]);
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        router.push(`/products?${createQueryString("search", formData.get("search"))}`);
-    };
 
     return (
         <div className="min-h-screen bg-bg-main text-ink px-6 pt-32 pb-12 md:px-16">
@@ -88,16 +101,18 @@ function ProductsCatalogContent() {
                 </header>
 
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 pb-8 border-b border-ink/10 mb-12">
-                    <form onSubmit={handleSearchSubmit} className="flex-1 space-y-1">
+                    {/* Search Input (Live Search) */}
+                    <div className="flex-1 space-y-1">
                         <label htmlFor="searchInput" className="font-mono text-[11px] uppercase tracking-[0.24em] text-ink/40 block">Search</label>
                         <input
                             id="searchInput"
-                            name="search"
+                            type="text"
                             className="w-full bg-transparent border-b border-ink/20 py-2 outline-none focus:border-ink transition-colors text-sm"
                             placeholder="Keyword..."
-                            defaultValue={search}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                    </form>
+                    </div>
 
                     <div className="w-full md:w-48 space-y-1">
                         <label className="font-mono text-[11px] uppercase tracking-[0.24em] text-ink/40 block">Department</label>
@@ -126,6 +141,8 @@ function ProductsCatalogContent() {
                         </select>
                     </div>
                 </div>
+
+                {/* Status, Products Grid, and Pagination Render Blocks Remain Identical */}
                 {status === "loading" && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, i) => (

@@ -1,6 +1,4 @@
-// src/lib/cartPricing.js
-import { Cart } from "@/models/cart.model.js";
-
+import { Cart } from "@/models/cart.model.js"
 export async function buildCartResponse(cart, owner) {
     if (!cart || cart.items.length === 0) {
         return { items: [], total: 0 };
@@ -89,7 +87,7 @@ export async function buildCartResponse(cart, owner) {
         enriched.push({
             _id: item._id,
             productId: product._id,
-            variantId: item.variantId, // needed by Order creation — wasn't in the original, added here
+            variantId: item.variantId,
             slug: product.slug,
             title: product.title,
             image: variant.images?.[0]?.url || null,

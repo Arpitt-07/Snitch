@@ -1,4 +1,3 @@
-// src/app/api/auth/me/route.js
 import { asyncHandler } from "@/lib/asyncHandler.js";
 import { ApiResponse } from "@/lib/ApiResponse.js";
 import { verifyJWT } from "@/lib/verifyJWT.js";

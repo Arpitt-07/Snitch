@@ -1,6 +1,5 @@
-// src/components/layout/Footer.jsx
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -28,7 +27,7 @@ const FOOTER_LINKS = {
 
 export default function Footer() {
     const [email, setEmail] = useState("");
-    const [status, setStatus] = useState("idle"); // idle | submitting | done | error
+    const [status, setStatus] = useState("idle");
     const reduce = useReducedMotion();
     const footerRef = useRef(null);
 
@@ -51,96 +50,134 @@ export default function Footer() {
             return;
         }
 
-        // Reveal content blocks as they enter view
-        gsap.set(".footer-block", { opacity: 0, y: 20 });
+        gsap.set(".footer-block", { opacity: 0, y: 30 });
 
         gsap.to(".footer-block", {
             opacity: 1,
             y: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power3.out",
+            duration: 1,
+            stagger: 0.15,
+            ease: "cubic-bezier(0.23, 1, 0.32, 1)",
             scrollTrigger: {
                 trigger: footerRef.current,
-                start: "top 90%",
-                toggleActions: "restart none none reverse",
+                start: "top bottom",
+                toggleActions: "play none none none",
+                invalidateOnRefresh: true,
             },
         });
-    }, { scope: footerRef });
+    }, { scope: footerRef, dependencies: [reduce] });
+
+    useEffect(() => {
+        if (reduce) return;
+
+        const refresh = () => ScrollTrigger.refresh();
+
+        if (document.readyState === "complete") {
+            refresh();
+        } else {
+            window.addEventListener("load", refresh);
+        }
+
+        const timeout = setTimeout(refresh, 500);
+
+        return () => {
+            window.removeEventListener("load", refresh);
+            clearTimeout(timeout);
+        };
+    }, [reduce]);
 
     return (
         <footer
             ref={footerRef}
-            className="bg-bg-main border-t border-ink/10 px-8 md:px-16 pt-20 pb-10"
+            className="bg-bg-main border-t border-ink/5 px-6 md:px-16 pt-24 pb-12 text-ink"
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16">
-                <div className="footer-block max-w-md">
-                    <h3 className="text-2xl md:text-3xl font-semibold text-ink mb-4 leading-snug">
-                        Considered pieces, worn with intent.
-                    </h3>
-                    <p className="text-ink/60 text-sm leading-relaxed">
-                        Snitch designs for people who dress with purpose. Every
-                        piece cut to last, built to be worn until it's truly yours.
-                    </p>
+            <div className="max-w-[1400px] mx-auto">
+                {/* Top Section: Brand & Newsletter */}
+                <div className="flex flex-col lg:flex-row justify-between items-start gap-16 mb-32">
+                    <div className="footer-block max-w-2xl">
+                        <h2 className="text-4xl md:text-6xl font-sans font-medium uppercase tracking-tighter leading-[0.9] mb-8">
+                            Defined by <br />
+                            <span className="text-ink/40">Street Instinct.</span>
+                        </h2>
+                        <p className="text-ink/60 text-base md:text-lg leading-relaxed max-w-[50ch]">
+                            Snitch crafts pieces for those who dress with intent.
+                            Our collections balance raw urban energy with
+                            precision tailoring.
+                        </p>
+                    </div>
+
+                    <div className="footer-block w-full max-w-md">
+                        <form onSubmit={handleSubmit} className="relative group">
+                            <label className="block font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40 mb-4">
+                                Newsletter
+                            </label>
+                            <div className="flex items-center border-b border-ink/20 focus-within:border-ink transition-colors duration-500">
+                                <input
+                                    type="email"
+                                    required
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="flex-1 bg-transparent py-4 text-sm outline-none placeholder:text-ink/20 transition-all"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={status === "submitting"}
+                                    className="py-4 text-[11px] font-bold uppercase tracking-widest text-ink/60 hover:text-ink transition-colors duration-300"
+                                >
+                                    {status === "submitting" ? "..." : "Join"}
+                                </button>
+                            </div>
+                            {status === "done" && (
+                                <p className="text-xs text-ink/50 mt-3 animate-in fade-in slide-in-from-top-1">You're on the list.</p>
+                            )}
+                            {status === "error" && (
+                                <p className="text-xs text-ink mt-3 animate-in fade-in slide-in-from-top-1">Something went wrong.</p>
+                            )}
+                        </form>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="footer-block mx-auto md:mx-0 md:justify-self-end w-full max-w-sm">
-                    <label className="block font-mono text-[11px] uppercase tracking-[0.28em] text-ink/40 mb-3">
-                        Join The List
-                    </label>
-                    <div className="flex border-b border-ink/20 focus-within:border-thread transition-colors">
-                        <input
-                            type="email"
-                            required
-                            placeholder="Your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-ink/30"
-                        />
-                        <button
-                            type="submit"
-                            disabled={status === "submitting"}
-                            className="text-[11px] font-bold uppercase tracking-[0.22em] text-ink/70 hover:text-thread transition-colors"
-                        >
-                            {status === "submitting" ? "..." : "Join"}
-                        </button>
-                    </div>
-                    {status === "done" && (
-                        <p className="text-xs text-ink/50 mt-2">You're on the list.</p>
-                    )}
-                    {status === "error" && (
-                        <p className="text-xs text-ink mt-2">Something went wrong, try again.</p>
-                    )}
-                </form>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-16">
-                {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
-                    <div key={heading} className="footer-block">
-                        <h4 className="hairline pb-3 font-mono text-[11px] uppercase tracking-[0.28em] text-ink/40">
-                            {heading}
+                {/* Middle Section: Navigation */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-24">
+                    {Object.entries(FOOTER_LINKS).map(([heading, links], idx) => (
+                        <div key={heading} className="footer-block">
+                            <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40 mb-6">
+                                {heading}
+                            </h4>
+                            <ul className="space-y-3">
+                                {links.map((link) => (
+                                    <li key={link.href} className="group overflow-hidden">
+                                        <TransitionLink
+                                            href={link.href}
+                                            className="text-sm text-ink/60 hover:text-ink transition-colors duration-300 inline-block relative"
+                                        >
+                                            {link.label}
+                                            <span className="absolute bottom-0 left-0 w-full h-[1px] bg-ink scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                                        </TransitionLink>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                    <div className="footer-block hidden md:block">
+                        <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40 mb-6">
+                            Brand
                         </h4>
-                        <ul className="space-y-2.5 mt-4">
-                            {links.map((link) => (
-                                <li key={link.href}>
-                                    <TransitionLink
-                                        href={link.href}
-                                        className="text-sm text-ink/70 hover:text-ink transition-colors"
-                                    >
-                                        {link.label}
-                                    </TransitionLink>
-                                </li>
-                            ))}
-                        </ul>
+                        <p className="text-sm text-ink/60 leading-relaxed">
+                            Precision in every stitch. <br />
+                            Designed for the city.
+                        </p>
                     </div>
-                ))}
-            </div>
+                </div>
 
-            <div className="footer-block flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-8 border-t border-ink/10 text-xs text-ink/40">
-                <span>© {new Date().getFullYear()} Snitch. All rights reserved.</span>
-                <div className="flex gap-6">
-                    <TransitionLink href="/privacy" className="hover:text-ink transition-colors">Privacy</TransitionLink>
-                    <TransitionLink href="/terms" className="hover:text-ink transition-colors">Terms</TransitionLink>
+                {/* Bottom Bar */}
+                <div className="footer-block flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-ink/5 text-[11px] font-mono uppercase tracking-widest text-ink/40">
+                    <span>© {new Date().getFullYear()} SNITCH. ALL RIGHTS RESERVED.</span>
+                    <div className="flex gap-8">
+                        <TransitionLink href="/privacy" className="hover:text-ink transition-colors">Privacy</TransitionLink>
+                        <TransitionLink href="/terms" className="hover:text-ink transition-colors">Terms</TransitionLink>
+                    </div>
                 </div>
             </div>
         </footer>

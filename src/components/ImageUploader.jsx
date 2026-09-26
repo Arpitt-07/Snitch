@@ -1,4 +1,3 @@
-// src/components/ImageUploader.jsx
 "use client";
 import { useState, useRef } from "react";
 import api from "@/lib/axios";

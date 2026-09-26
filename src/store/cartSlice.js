@@ -1,4 +1,3 @@
-// src/store/cartSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/lib/axios";
 
@@ -15,7 +14,6 @@ export const addToCart = createAsyncThunk(
     "cart/add",
     async ({ productId, variantId, size, quantity = 1 }, { rejectWithValue }) => {
         try {
-            // Comprehensive payload to cover all possible backend naming conventions
             await api.post("/cart", {
                 productId,
                 product: productId,

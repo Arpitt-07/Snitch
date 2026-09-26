@@ -6,7 +6,6 @@ export async function resolveCartOwner(req) {
         const user = await verifyJWT(req);
         return { type: "user", userId: user._id };
     } catch {
-        // not logged in, or token invalid/expired — fall back to guest identity
     }
 
     const existingSessionId = req.cookies.get("guestCartId")?.value;
@@ -23,7 +22,7 @@ export function attachGuestCookie(response, owner) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 60 * 60 * 24 * 30, // 30 days
+            maxAge: 60 * 60 * 24 * 30,
         });
     }
     return response;

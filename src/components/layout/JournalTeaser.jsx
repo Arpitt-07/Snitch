@@ -1,4 +1,3 @@
-// src/components/layout/JournalTeaser.jsx
 "use client";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
@@ -7,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TransitionLink from "@/components/TransitionLink";
 import { useCursor } from "@/contexts/CursorContext";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -15,20 +15,20 @@ const POSTS = [
         slug: "the-art-of-layering",
         category: "Styling Guide",
         title: "The art of layering for transitional weather",
-        image: "/images/5.webp",
+        image: "/images/Journal1.jpg",
     },
     {
         slug: "how-its-made-denim",
         category: "How It's Made",
         title: "Inside our raw denim process, from thread to finish",
-        image: "/images/6.webp",
+        image: "/images/Journal2.jpg",
     },
     {
-        
+
         slug: "ss26-story",
         category: "Seasonal Story",
         title: "S/S 2026, a study in restraint",
-        image: "/images/product_jacket.webp",
+        image: "/images/Journal3.jpg",
     },
 ];
 
@@ -39,12 +39,12 @@ function JournalCard({ post }) {
 
     const handleEnter = () => {
         if (reduce) return;
-        gsap.to(imgRef.current, { scale: 1.05, duration: 0.7, ease: "power3.out" });
+        gsap.to(imgRef.current, { scale: 1.05, duration: 0.5, ease: "cubic-bezier(0.23, 1, 0.32, 1)" });
         setVariant("view");
     };
     const handleLeave = () => {
         if (reduce) return;
-        gsap.to(imgRef.current, { scale: 1, duration: 0.7, ease: "power3.out" });
+        gsap.to(imgRef.current, { scale: 1, duration: 0.5, ease: "cubic-bezier(0.23, 1, 0.32, 1)" });
         setVariant("default");
     };
 
@@ -58,11 +58,13 @@ function JournalCard({ post }) {
             onBlur={handleLeave}
         >
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2px]">
-                <img
+                <Image
                     ref={imgRef}
                     src={post.image}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover w-full h-full object-cover will-change-transform"
                 />
             </div>
             <div className="mt-5 hairline pt-4">
@@ -84,7 +86,6 @@ export default function JournalTeaser() {
     useGSAP(() => {
         if (reduce) return;
 
-        // Mask-wipe reveal for cards
         gsap.set(".journal-card", {
             opacity: 0,
             clipPath: "inset(0 0 100% 0)"
@@ -95,17 +96,11 @@ export default function JournalTeaser() {
             clipPath: "inset(0 0 0% 0)",
             duration: 1.2,
             stagger: 0.2,
-            ease: "expo.out",
+            ease: "cubic-bezier(0.23, 1, 0.32, 1)",
             scrollTrigger: {
                 trigger: sectionRef.current,
-                start: "top 80%",
-                toggleActions: "restart none none reverse",
-                onLeaveBack: (self) => {
-                    gsap.set(".journal-card", {
-                        opacity: 0,
-                        clipPath: "inset(0 0 100% 0)"
-                    });
-                },
+                start: "top 75%",
+                toggleActions: "play none none reverse",
             },
         });
     }, { scope: sectionRef });

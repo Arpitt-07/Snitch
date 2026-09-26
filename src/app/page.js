@@ -1,7 +1,7 @@
 "use client";
 import Hero from "@/components/layout/Hero";
 import BrandStatement from "@/components/layout/BrandStatement";
-import ShopByDepartment from "@/components/layout/ShopByDepartment";
+import ShopByDepartment from "@/components/layout/Department";
 import JournalTeaser from "@/components/layout/JournalTeaser";
 import CollectionSection from "@/components/layout/CollectionSection"; 
 

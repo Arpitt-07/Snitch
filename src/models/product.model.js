@@ -19,9 +19,7 @@ const sizeSchema = new mongoose.Schema({
         min: [0, "Price cannot be negative"],
         default: null
     }
-},
-    { _id:false }
-);
+}, { _id: false });
 
 const variantSchema = new mongoose.Schema({
     color: {
@@ -46,12 +44,26 @@ const variantSchema = new mongoose.Schema({
     },
     sizes: {
         type: [sizeSchema],
-        required: true,
-        validate: {
-            validator: (arr) => Array.isArray(arr) && arr.length > 0,
-            message: "At least one size is required per variant"
-        }
+        default: []
+    },
+    stock: {
+        type: Number,
+        min: [0, "Stock cannot be negative"],
+        default: null
     }
+});
+
+variantSchema.pre("validate", function (next) {
+    const hasSizes = this.sizes && this.sizes.length > 0;
+    const hasVariantStock = this.stock !== undefined && this.stock !== null;
+
+    if (!hasSizes && !hasVariantStock) {
+        this.invalidate(
+            'sizes', 
+            'A variant must either have a list of sizes with stock, or a base stock level for the entire variant.'
+        );
+    }
+    next();
 });
 
 const productSchema = new mongoose.Schema({

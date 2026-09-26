@@ -1,4 +1,4 @@
-// src/components/layout/BrandStatement.jsx
+
 "use client";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
@@ -19,51 +19,60 @@ export default function BrandStatement() {
     useGSAP(() => {
         const split = SplitText.create(textRef.current, {
             type: "lines",
-            linesClass: "overflow-hidden",
+            mask: "lines",
         });
 
         const lines = split.lines;
+        const mm = gsap.matchMedia();
 
         if (!reduce) {
             gsap.set(lines, { yPercent: 110 });
-
-            gsap.to(lines, {
-                yPercent: 0,
-                stagger: 0.1,
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 85%",
-                    end: "top 60%",
-                    scrub: true,
+            mm.add(
+                {
+                    isMobile: "(max-width: 767px)",
+                    isDesktop: "(min-width: 768px)",
                 },
-            });
+                (context) => {
+                    const { isMobile } = context.conditions;
 
-            gsap.set(mediaContainerRef.current, { clipPath: "inset(49% 0% 49% 0%)", scale: 1.1, opacity: 1 });
-            gsap.set(mediaRef.current, { scale: 1.1 });
+                    gsap.to(lines, {
+                        yPercent: 0,
+                        stagger: 0.1,
+                        duration: 2,
+                        ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+                        scrollTrigger: {
+                            trigger: sectionRef.current,
+                            start: isMobile ? "top 80%" : "top 30%",
+                            end: "top top",
+                            scrub: true,
+                        },
+                    });
+                }
+            );
+
+            gsap.set(mediaContainerRef.current, { clipPath: "inset(100% 0% 0% 0%)", scale: 1.05, opacity: 1 });
+            gsap.set(mediaRef.current, { scale: 1.05 });
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: sectionRef.current,
                     start: "top 30%",
-                    toggleActions: "restart none none reverse",
-                    onLeaveBack: () => {
-                        gsap.set(mediaContainerRef.current, { clipPath: "inset(49% 0% 49% 0%)", scale: 1.1, opacity: 1 });
-                        gsap.set(mediaRef.current, { scale: 1.1 });
-                    },
+                    toggleActions: "play none none reverse",
                 }
             });
 
             tl.to(mediaContainerRef.current, {
                 clipPath: "inset(0% 0% 0% 0%)",
-                duration: 1.5,
-                ease: "expo.out",
+                duration: 1.2,
+                ease: "cubic-bezier(0.23, 1, 0.32, 1)",
             })
             .to(mediaRef.current, {
                 scale: 1,
-                duration: 1.5,
-                ease: "expo.out",
+                duration: 1.2,
+                ease: "cubic-bezier(0.23, 1, 0.32, 1)",
             }, "<");
         } else {
+
             gsap.set(mediaContainerRef.current, { opacity: 0 });
             gsap.to([textRef.current, mediaContainerRef.current], {
                 opacity: 1,
@@ -78,6 +87,7 @@ export default function BrandStatement() {
         }
 
         return () => {
+            mm.revert();
             split.revert();
         };
     }, { scope: sectionRef });
@@ -94,7 +104,7 @@ export default function BrandStatement() {
                 />
                 <p
                     ref={textRef}
-                    className="text-ink text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold leading-[1.18] max-w-[65ch]"
+                    className="text-ink text-2xl  md:text-5xl lg:text-6xl font-semibold leading-[1.18] max-w-[65ch]"
                 >
                     We make clothes for people who dress on purpose. Considered
                     pieces, cut to last, worn until they are truly yours.
@@ -107,7 +117,7 @@ export default function BrandStatement() {
                 >
                     <img
                         ref={mediaRef}
-                        src="https://images.pexels.com/photos/30977553/pexels-photo-30977553.jpeg"
+                        src="/images/4.webp"
                         alt="Editorial brand view"
                         className="w-full h-full object-cover"
                     />
