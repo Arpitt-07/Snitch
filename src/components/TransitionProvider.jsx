@@ -154,7 +154,7 @@ export function TransitionProvider({ children }) {
                 <div ref={panelRef} className="absolute inset-0 bg-ink" />
                 <h1
                     ref={headingRef}
-                    className="relative z-10 text-[15vw] md:text-[2vw] font-sans font-black uppercase tracking-tighter text-bg-main whitespace-nowrap"
+                    className="relative z-10 text-[8vw] md:text-[2vw] font-sans font-black uppercase tracking-tighter text-bg-main whitespace-nowrap"
                 >
                     SNITCH
                 </h1>

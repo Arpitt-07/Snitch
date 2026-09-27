@@ -131,7 +131,7 @@ export default function Navbar() {
     }, [dispatch]);
 
     useGSAP(() => {
-        if (!ready) return;
+        if (!ready || !navRef.current) return;
         gsap.from(navRef.current, {
             y: -20,
             opacity: 0,
