@@ -46,21 +46,25 @@ export default function Footer() {
 
     useGSAP(() => {
         if (reduce) {
-            gsap.set(".footer-block", { opacity: 1, y: 0 });
+            gsap.set(".footer-block", { clipPath: "inset(0% 0% 0% 0%)", y: 0 });
             return;
         }
 
-        gsap.set(".footer-block", { opacity: 0, y: 30 });
+        // Set initial state: fully masked/clipped from the bottom up, pushed down slightly
+        gsap.set(".footer-block", { 
+            clipPath: "inset(0% 0% 100% 0%)", 
+            y: 60 
+        });
 
         gsap.to(".footer-block", {
-            opacity: 1,
+            clipPath: "inset(0% 0% 0% 0%)", 
             y: 0,
-            duration: 1,
+            duration: 1.2,
             stagger: 0.15,
-            ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+            ease: "power4.out", 
             scrollTrigger: {
                 trigger: footerRef.current,
-                start: "top bottom",
+                start: "top 85%", 
                 toggleActions: "play none none none",
                 invalidateOnRefresh: true,
             },
@@ -92,7 +96,7 @@ export default function Footer() {
             className="bg-bg-main border-t border-ink/5 px-6 md:px-16 pt-24 pb-12 text-ink"
         >
             <div className="max-w-[1400px] mx-auto">
-                {/* Top Section: Brand & Newsletter */}
+
                 <div className="flex flex-col lg:flex-row justify-between items-start gap-16 mb-32">
                     <div className="footer-block max-w-2xl">
                         <h2 className="text-4xl md:text-6xl font-sans font-medium uppercase tracking-tighter leading-[0.9] mb-8">
@@ -137,8 +141,6 @@ export default function Footer() {
                         </form>
                     </div>
                 </div>
-
-                {/* Middle Section: Navigation */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-24">
                     {Object.entries(FOOTER_LINKS).map(([heading, links], idx) => (
                         <div key={heading} className="footer-block">
@@ -170,8 +172,6 @@ export default function Footer() {
                         </p>
                     </div>
                 </div>
-
-                {/* Bottom Bar */}
                 <div className="footer-block flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-ink/5 text-[11px] font-mono uppercase tracking-widest text-ink/40">
                     <span>© {new Date().getFullYear()} SNITCH. ALL RIGHTS RESERVED.</span>
                     <div className="flex gap-8">
