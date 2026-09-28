@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const DEPARTMENTS = [
     { name: "Menswear", slug: "Menswear", image: "/images/Menswear.jpg" },
     { name: "Womenswear", slug: "Womenswear", image: "/images/Womenswear.jpg" },
-    { name: "Accessories", slug: "Accessories", image: "/images/Accessories.jpg" },
+    { name: "Accessories", slug: "Accessories", image: "/images/accessories.jpg" },
 ];
 
 function DepartmentTile({ department, index }) {
